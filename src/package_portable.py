@@ -16,4 +16,4 @@ with zipfile.ZipFile(target, 'w', zipfile.ZIP_DEFLATED, compresslevel=6) as bund
 with zipfile.ZipFile(target) as bundle:
     assert bundle.testzip() is None
     assert not any('/checks/' in name or name.endswith(('settings.json', 'history.json', 'auth.json')) for name in bundle.namelist())
-print(target.name, target.stat().st_size, 'bytes')
+print('Portable ZIP:', target.stat().st_size, 'bytes')

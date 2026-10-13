@@ -107,7 +107,7 @@ namespace HailuotaPet {
   void Refresh() { input.IsEnabled=send.IsEnabled=capture.IsEnabled=AiEnabled&&!busy; previous.IsEnabled=current>0; next.IsEnabled=current>=0&&current+1<parts.Count; play.IsEnabled=parts.Count>1; stop.IsEnabled=busy||current+1<parts.Count; Ui.SetIcon(play,autoplay?"pause":"play"); play.ToolTip=autoplay?"暂停播放":"继续播放"; counter.Text=current<0?(busy?"等待回复":""):((current+1)+" / "+parts.Count+(finished?"":"…")); }
   public void BringUp(bool showInput=true) {
    openedAt=clock.Elapsed.TotalSeconds;
-   if(!IsVisible) Show(); FollowAnchor();
+   if(!IsVisible) {Show();Ui.Fade(this);} FollowAnchor();
    if(interactive&&!welcomed&&!Settings.SetupComplete) {
     welcomed=true; var welcome=new WelcomeWindow(Settings); welcome.Owner=this;
     dialogActive=true; bool? accepted; try { accepted=welcome.ShowDialog(); } finally { dialogActive=false; }
@@ -143,7 +143,7 @@ namespace HailuotaPet {
   void TogglePlay() { autoplay=!autoplay; nextAt=clock.Elapsed.TotalSeconds+ReplySegments.ReadingSeconds(reply.Text); Refresh(); }
   void Stop() { if(pending!=null) pending.Cancel(); autoplay=false; Refresh(); }
   void Tick(object sender,EventArgs e) { FollowAnchor(); if(!IsVisible||!autoplay||captureActive||dialogActive) return; if(current+1<parts.Count&&clock.Elapsed.TotalSeconds>=nextAt) Display(current+1); else if(!busy&&!IsMouseOver&&!InputVisible&&finished&&current==parts.Count-1&&clock.Elapsed.TotalSeconds>=nextAt+3) Hide(); else if(!busy&&InputVisible&&!IsKeyboardFocusWithin&&!IsMouseOver&&clock.Elapsed.TotalSeconds>openedAt+12) Hide(); }
-  void Display(int index) { if(index<0||index>=parts.Count) return; current=index; reply.Text=parts[index]; nextAt=clock.Elapsed.TotalSeconds+ReplySegments.ReadingSeconds(reply.Text); Refresh(); FollowAnchor(); }
+  void Display(int index) { if(index<0||index>=parts.Count) return; current=index; reply.Text=parts[index];Ui.Fade(reply,.16); nextAt=clock.Elapsed.TotalSeconds+ReplySegments.ReadingSeconds(reply.Text); Refresh(); FollowAnchor(); }
   public void BeginThinking() { parts.Clear(); current=-1; finished=false; autoplay=true; reply.Text=ThinkingText; caption.Text="海洛塔帝"; inputPanel.Visibility=Visibility.Collapsed; Refresh(); UpdateLayout(); FollowAnchor(); }
   public void Receive(string full,bool complete) { if(finished&&!complete) return; parts=ReplySegments.Split(full,complete); finished=complete; if(current<0&&parts.Count>0) Display(0); else if(current>=0&&current<parts.Count) reply.Text=parts[current]; Refresh(); FollowAnchor(); }
   public void TestAdvance() { if(current+1<parts.Count) Display(current+1); }

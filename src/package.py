@@ -23,4 +23,4 @@ with zipfile.ZipFile(archive) as bundle:
     assert bundle.testzip() is None
     (root / 'checks').mkdir(exist_ok=True)
     (root / 'checks' / 'installer-payload.txt').write_text('\n'.join(bundle.namelist()), encoding='utf-8')
-print('Payload:', archive, archive.stat().st_size, 'bytes;', len(files), 'files; no user credentials/history/settings.')
+print('Payload ZIP:', archive.stat().st_size, 'bytes;', len(files), 'files; no user credentials/history/settings.')

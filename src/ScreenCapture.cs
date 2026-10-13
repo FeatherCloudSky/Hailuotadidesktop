@@ -56,8 +56,12 @@ namespace HailuotaPet {
    if(Selected.Width>0&&Selected.Height>0) using(var pen=new Pen(Color.FromArgb(216,191,255),2)) e.Graphics.DrawRectangle(pen,Selected);
    string text=selecting?(Selected.Width+" × "+Selected.Height+"  ·  松开完成") : "拖动框选屏幕区域  ·  Esc / 右键取消";
    Point pointer=PointToClient(Forms.Cursor.Position); int x=Math.Max(8,Math.Min(pointer.X+18,Width-350)),y=Math.Max(8,Math.Min(pointer.Y+22,Height-44));
-   using(var fill=new SolidBrush(Color.FromArgb(235,35,30,50))) e.Graphics.FillRectangle(fill,x,y,340,32);
-   using(var font=new Font("Microsoft YaHei UI",10)) using(var foreground=new SolidBrush(Color.White)) e.Graphics.DrawString(text,font,foreground,x+10,y+6);
+   e.Graphics.SmoothingMode=System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+   using(var capsule=new System.Drawing.Drawing2D.GraphicsPath()) {
+    capsule.AddArc(x,y,32,32,90,180);capsule.AddArc(x+308,y,32,32,270,180);capsule.CloseFigure();
+    using(var fill=new SolidBrush(Color.FromArgb(248,255,255,255))) e.Graphics.FillPath(fill,capsule);
+   }
+   using(var font=new Font("Microsoft YaHei UI",10)) using(var foreground=new SolidBrush(Color.FromArgb(115,102,137))) e.Graphics.DrawString(text,font,foreground,x+14,y+6);
   }
   protected override void OnMouseDown(Forms.MouseEventArgs e) {
    if(e.Button==Forms.MouseButtons.Right) { Cancel(); return; }

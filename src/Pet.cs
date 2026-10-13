@@ -92,11 +92,11 @@ namespace HailuotaPet {
    RenderOptions.SetBitmapScalingMode(actor,BitmapScalingMode.HighQuality);
    stage.Children.Add(actor);
    speech.FontFamily=new FontFamily("Microsoft YaHei UI"); speech.FontSize=13;
-   speech.Foreground=new SolidColorBrush(Color.FromRgb(235,231,255)); speech.TextWrapping=TextWrapping.Wrap;
+   speech.Foreground=new SolidColorBrush(Color.FromRgb(60,52,72)); speech.TextWrapping=TextWrapping.Wrap;
    speech.TextAlignment=TextAlignment.Center;
-   bubble.Background=new SolidColorBrush(Color.FromArgb(242,35,32,63));
-   bubble.BorderBrush=new SolidColorBrush(Color.FromRgb(166,146,214)); bubble.BorderThickness=new Thickness(1);
-   bubble.CornerRadius=new CornerRadius(15); bubble.Padding=new Thickness(16,10,16,10);
+   bubble.Background=new SolidColorBrush(Color.FromArgb(255,255,255,255));
+   bubble.BorderBrush=new SolidColorBrush(Color.FromRgb(166,146,214)); bubble.BorderThickness=new Thickness(0);
+   bubble.CornerRadius=new CornerRadius(24); bubble.Padding=new Thickness(16,10,16,10);
    bubble.Width=280; bubble.HorizontalAlignment=HorizontalAlignment.Center; bubble.VerticalAlignment=VerticalAlignment.Top;
    bubble.Margin=new Thickness(0,12,0,0); bubble.Child=speech; bubble.Visibility=Visibility.Collapsed;
    bubble.IsHitTestVisible=false; stage.Children.Add(bubble);

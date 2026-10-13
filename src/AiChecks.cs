@@ -33,11 +33,34 @@ namespace HailuotaPet {
     chat.BringUp(true); typeof(Window).GetMethod("OnDeactivated",privateFlags).Invoke(chat,new object[]{EventArgs.Empty}); Assert(!chat.IsVisible,"Outside click did not hide bubble");
     chat.BringUp(true); head=new Point(20,20); chat.FollowAnchor(); Assert(chat.Left>=screen.Left&&chat.Top>=screen.Top&&chat.Left+chat.ActualWidth<=screen.Right+1,"Bubble overflowed screen edge");
     screen=new Rect(-1280,0,1280,720); head=new Point(-100,400); chat.FollowAnchor(); Assert(chat.Left>=screen.Left&&chat.Left+chat.ActualWidth<=screen.Right+1,"Bubble failed on negative-coordinate monitor");
+    screen=new Rect(0,0,1280,720);head=new Point(650,500);CheckUiSend(chat,checks);
     var settings=new SettingsWindow(new AiSettings {Provider="chat"}); settings.Show(); Ui.Render(settings,Path.Combine(checks,"settings-window.png")); settings.Close();
+    CheckSettings(checks);
     var incomplete=new SettingsWindow(new AiSettings {Provider="chat",ApiUrl="",Model=""}); incomplete.Loaded+=delegate { incomplete.Dispatcher.BeginInvoke(new Action(incomplete.SkipAi)); }; incomplete.ShowDialog(); Assert(AiStore.LoadSettings().Provider=="none","API skip requires filling API fields");
     chat.Shutdown(); app.Shutdown();
-    File.WriteAllText(Path.Combine(checks,"ai-self-test.txt"),"PASS: default hidden; auto-dismiss completed bubble; outside-click dismissal; reverse region selection; crop boundaries; image encoding; screenshot preview; Chat/Responses image payloads; image omitted from saved history; DPAPI key roundtrip; SSE Unicode streaming; HTTP error redaction; cancellation; onboarding/API skip; offline guard; bubble input/thinking/reply rendering; punctuation segmentation/order/decimals/ellipsis/quotes; final tail; late-delta guard; screen-edge and negative-monitor placement.\r\n"); var previous=Path.Combine(checks,"ai-test-error.txt"); if(File.Exists(previous)) File.Delete(previous); return 0;
+    File.WriteAllText(Path.Combine(checks,"ai-self-test.txt"),"PASS: native capsule UI and icon accessibility labels; native bubble screenshot send -> mock SSE -> segmented reply; settings key/model/reasoning/timeout/tokens/temperature/prompt/history roundtrip; Chat/Responses selector; capsule history toggle; offline provider; default hidden; auto-dismiss; outside-click dismissal; reverse selection; crop bounds; image encoding/preview; multimodal schemas; images omitted from saved history; DPAPI; SSE Unicode; redacted errors; cancellation; onboarding/API skip; punctuation ordering/decimals/ellipsis/quotes/final-tail/late-delta guard; screen-edge and negative-monitor placement.\r\n"); var previous=Path.Combine(checks,"ai-test-error.txt"); if(File.Exists(previous)) File.Delete(previous); return 0;
    } catch(Exception error) { File.WriteAllText(Path.Combine(checks,"ai-test-error.txt"),error.ToString()); return 1; }
+  }
+  static void CheckSettings(string checks) {
+   var source=new AiSettings {Provider="responses",ApiUrl="http://127.0.0.1/v1",Model="ui-test-model",Reasoning="high",TimeoutSeconds=90,MaxTokens=512,Temperature="0.2",SystemPrompt="角色提示词保留测试",RememberHistory=false};source.SetKey("ui-only-test-key");
+   var window=new SettingsWindow(source);window.Show();var flags=System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic;
+   var read=typeof(SettingsWindow).GetMethod("Read",flags);var restored=(AiSettings)read.Invoke(window,null);
+   Assert(restored.Provider=="responses"&&restored.GetKey()=="ui-only-test-key"&&restored.Model==source.Model&&restored.Reasoning==source.Reasoning&&restored.TimeoutSeconds==90&&restored.MaxTokens==512&&restored.Temperature=="0.2"&&restored.SystemPrompt==source.SystemPrompt&&!restored.RememberHistory,"Capsule settings roundtrip lost fields");
+   var protocol=(System.Windows.Controls.ComboBox)typeof(SettingsWindow).GetField("protocol",flags).GetValue(window);protocol.SelectedIndex=0;Assert(((AiSettings)read.Invoke(window,null)).Provider=="chat","API protocol switch failed");
+   var remember=(System.Windows.Controls.CheckBox)typeof(SettingsWindow).GetField("remember",flags).GetValue(window);remember.IsChecked=true;Assert(((AiSettings)read.Invoke(window,null)).RememberHistory,"Capsule toggle failed");
+   foreach(var expander in FindControls<System.Windows.Controls.Expander>(window))expander.IsExpanded=true;Ui.Render(window,Path.Combine(checks,"settings-expanded-window.png"));
+   var providers=(System.Windows.Controls.Button[])typeof(SettingsWindow).GetField("providers",flags).GetValue(window);providers[2].RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Button.ClickEvent));Assert(((AiSettings)read.Invoke(window,null)).Provider=="none","Offline capsule selection failed");Ui.Render(window,Path.Combine(checks,"settings-offline-window.png"));window.Close();
+  }
+  static List<T> FindControls<T>(DependencyObject root) where T:DependencyObject {var found=new List<T>();for(int i=0;i<System.Windows.Media.VisualTreeHelper.GetChildrenCount(root);i++){var child=System.Windows.Media.VisualTreeHelper.GetChild(root,i);if(child is T)found.Add((T)child);found.AddRange(FindControls<T>(child));}return found;}
+  static void CheckUiSend(BubbleChatWindow chat,string checks) {
+   var frame=new System.Windows.Threading.DispatcherFrame();Exception failure=null;chat.BringUp(true);
+   using(var fixture=new System.Drawing.Bitmap(80,40)){using(var draw=System.Drawing.Graphics.FromImage(fixture))draw.Clear(System.Drawing.Color.Lavender);chat.SetAttachment(RegionCapture.Encode(fixture));}
+   var flags=System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic;
+   foreach(string name in new[]{"send","capture","previous","next","play","stop"}){var button=(System.Windows.Controls.Button)typeof(BubbleChatWindow).GetField(name,flags).GetValue(chat);Assert(button.Content is System.Windows.Shapes.Path&&!string.IsNullOrEmpty(System.Windows.Automation.AutomationProperties.GetName(button)),"Icon or accessibility label missing: "+name);}
+   chat.Dispatcher.BeginInvoke(new Action(async delegate {
+    try {string result=await MockRequest("chat",200,"text/event-stream","data: {\"choices\":[{\"delta\":{\"content\":\"截图已收到。我们一起看看吧！\"}}]}\n\ndata: [DONE]\n\n",delegate{},CancellationToken.None,150,chat);Assert(result=="截图已收到。我们一起看看吧！"&&chat.SegmentCount==2&&!chat.IsBusy,"Native bubble screenshot send/reply failed");Ui.Render(chat,Path.Combine(checks,"bubble-ui-roundtrip.png"));}
+    catch(Exception error){failure=error;}finally{frame.Continue=false;}
+   }));System.Windows.Threading.Dispatcher.PushFrame(frame);if(failure!=null)throw failure;
   }
   static async Task CheckBackend() {
    var selection=RegionCapture.Selection(new System.Drawing.Point(90,60),new System.Drawing.Point(-10,10),new System.Drawing.Size(100,80)); Assert(selection==new System.Drawing.Rectangle(0,10,90,50),"Reverse selection or bounds clipping failed");
@@ -81,7 +104,7 @@ namespace HailuotaPet {
    bool redacted=false; try { await MockRequest("chat",400,"application/json","{\"error\":\"bad test-secret-for-dpapi\"}",delegate{},CancellationToken.None,0); } catch(Exception e) { redacted=e.Message.Contains("已隐藏密钥")&&!e.Message.Contains("test-secret-for-dpapi"); } Assert(redacted,"Error exposed key");
    bool cancelled=false; using(var token=new CancellationTokenSource()) { token.CancelAfter(100); try { await MockRequest("chat",200,"text/event-stream","",delegate{},token.Token,800); } catch(OperationCanceledException) { cancelled=true; } } Assert(cancelled,"Cancellation failed");
   }
-  static async Task<string> MockRequest(string provider,int code,string type,string body,Action<string> update,CancellationToken token,int delay) {
+  static async Task<string> MockRequest(string provider,int code,string type,string body,Action<string> update,CancellationToken token,int delay,BubbleChatWindow ui=null) {
    var listener=new TcpListener(IPAddress.Loopback,0); listener.Start(); int port=((IPEndPoint)listener.LocalEndpoint).Port;
    var server=Task.Run(async delegate {
     try { using(var client=await listener.AcceptTcpClientAsync()) using(var stream=client.GetStream()) {
@@ -90,13 +113,14 @@ namespace HailuotaPet {
      Assert(header.ToString().Contains("Bearer test-secret-for-dpapi"),"Authorization not sent");
      byte[] data=new byte[length]; int offset=0; while(offset<length) { int read=await stream.ReadAsync(data,offset,length-offset); if(read==0) break; offset+=read; }
      var parsed=AiStore.Json.DeserializeObject(Encoding.UTF8.GetString(data)) as Dictionary<string,object>; Assert(parsed!=null&&parsed.ContainsKey(provider=="chat"?"messages":"input"),"Transport payload incorrect");
+     if(ui!=null)Assert(Encoding.UTF8.GetString(data).Contains("data:image/png;base64,"),"Native bubble did not transport screenshot");
      if(delay>0) await Task.Delay(delay);
      byte[] bytes=Encoding.UTF8.GetBytes(body), headers=Encoding.ASCII.GetBytes("HTTP/1.1 "+code+" "+(code==200?"OK":"Bad Request")+"\r\nContent-Type: "+type+"; charset=utf-8\r\nContent-Length: "+bytes.Length+"\r\nConnection: close\r\n\r\n");
      await stream.WriteAsync(headers,0,headers.Length); for(int i=0;i<bytes.Length;i+=7) await stream.WriteAsync(bytes,i,Math.Min(7,bytes.Length-i));
     }} catch(IOException) { if(!token.IsCancellationRequested) throw; }
    });
-   var settings=new AiSettings {Provider=provider,Model="mock-model",ApiUrl="http://127.0.0.1:"+port+"/v1",TimeoutSeconds=15}; settings.SetKey("test-secret-for-dpapi");
-   try { return await AiBackend.Ask(settings,new List<ChatMessage>{new ChatMessage("user","测试")},update,token); }
+   var settings=new AiSettings {Provider=provider,Model="mock-model",ApiUrl="http://127.0.0.1:"+port+"/v1",TimeoutSeconds=15,SetupComplete=true}; settings.SetKey("test-secret-for-dpapi");
+   try {if(ui!=null){ui.Settings=settings;var request=ui.Submit("截图按钮及发送测试");Assert(ui.IsBusy&&ui.ReplyText==BubbleChatWindow.ThinkingText&&!ui.InputVisible,"Native send did not enter thinking state");await request;Assert(ui.History[ui.History.Count-1].Role=="assistant","Native UI did not save reply");return ui.History[ui.History.Count-1].Content;} return await AiBackend.Ask(settings,new List<ChatMessage>{new ChatMessage("user","测试")},update,token); }
    finally { listener.Stop(); server.GetAwaiter().GetResult(); }
   }
   public static int Smoke(string[] args) {

@@ -69,7 +69,7 @@ namespace HailuotaInstaller {
      Shortcut(Path.Combine(menu,"卸载海洛塔帝桌宠.lnk"),Path.Combine(folder,"卸载海洛塔帝桌宠.exe"),folder);
     }
     if(!noRegistry) using(var key=Registry.CurrentUser.CreateSubKey(Key)) {
-     key.SetValue("DisplayName","海洛塔帝桌宠"); key.SetValue("DisplayVersion","0.4.1"); key.SetValue("Publisher","海洛塔帝桌宠 · 个人定制"); key.SetValue("InstallLocation",folder);
+     key.SetValue("DisplayName","海洛塔帝桌宠"); key.SetValue("DisplayVersion","0.5.0"); key.SetValue("Publisher","海洛塔帝桌宠 · 个人定制"); key.SetValue("InstallLocation",folder);
      key.SetValue("DisplayIcon",Path.Combine(folder,Exe)+",0"); key.SetValue("UninstallString",Quote(Path.Combine(folder,"卸载海洛塔帝桌宠.exe")));
      key.SetValue("NoModify",1,RegistryValueKind.DWord); key.SetValue("NoRepair",1,RegistryValueKind.DWord);
      key.SetValue("EstimatedSize",(int)(installed.Sum(f=>new FileInfo(Inside(folder,f)).Length)/1024),RegistryValueKind.DWord);

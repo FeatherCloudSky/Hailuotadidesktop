@@ -48,7 +48,7 @@ namespace HailuotaPet {
  }
  public class BubbleChatWindow : Window {
   public const string ThinkingText="海洛塔帝正在深度思考中......";
-  readonly TextBlock reply=Ui.Text("我在，想聊些什么？",15),caption=Ui.Text("海洛塔帝",11,"#c6b2dc"),counter=Ui.Text("",11,"#b6a6c9");
+  readonly TextBlock reply=Ui.Text("我在，想聊些什么？",15),caption=Ui.Text("海洛塔帝",12,Ui.Ink),counter=Ui.Text("",10,Ui.Muted);
   readonly TextBox input=Ui.Input("",true);
   readonly StackPanel inputPanel=new StackPanel();
   readonly StackPanel attachmentPanel=new StackPanel {Orientation=Orientation.Horizontal,Visibility=Visibility.Collapsed};
@@ -75,29 +75,28 @@ namespace HailuotaPet {
    Settings=AiStore.LoadSettings(); History=Settings.RememberHistory?AiStore.LoadHistory():new List<ChatMessage>();
    Title="海洛塔帝 · 气泡对话"; Width=380; SizeToContent=SizeToContent.Height; WindowStyle=WindowStyle.None; ResizeMode=ResizeMode.NoResize;
    AllowsTransparency=true; ShowInTaskbar=false; Topmost=owner==null||owner.Topmost; Ui.Theme(this); Background=Brushes.Transparent;
-   var layout=new StackPanel(); Content=new ScrollViewer {Content=layout,VerticalScrollBarVisibility=ScrollBarVisibility.Auto,HorizontalScrollBarVisibility=ScrollBarVisibility.Disabled};
+   var layout=new StackPanel {Margin=new Thickness(12)}; Content=new ScrollViewer {Content=layout,VerticalScrollBarVisibility=ScrollBarVisibility.Auto,HorizontalScrollBarVisibility=ScrollBarVisibility.Disabled};
    var content=new StackPanel();
    var titleRow=new DockPanel {Margin=new Thickness(0,0,0,8)};
    var tools=new StackPanel {Orientation=Orientation.Horizontal,HorizontalAlignment=HorizontalAlignment.Right};
-   tools.Children.Add(Mini("记录",OpenHistory)); tools.Children.Add(Mini("新对话",NewChat)); tools.Children.Add(Mini("设置",OpenSettings)); tools.Children.Add(Mini("×",delegate { Hide(); }));
-   DockPanel.SetDock(tools,Dock.Right); titleRow.Children.Add(tools); caption.VerticalAlignment=VerticalAlignment.Center; caption.Margin=new Thickness(0); titleRow.Children.Add(caption); content.Children.Add(titleRow);
-   reply.Margin=new Thickness(0); reply.LineHeight=24;
+   tools.Children.Add(Ui.Icon("聊天记录","history",OpenHistory,27)); tools.Children.Add(Ui.Icon("新对话","plus",NewChat,27)); tools.Children.Add(Ui.Icon("设置","settings",OpenSettings,27)); tools.Children.Add(Ui.Icon("收起气泡","x",delegate { Hide(); },27));
+   DockPanel.SetDock(tools,Dock.Right); titleRow.Children.Add(tools);var logo=Ui.Logo(24);logo.VerticalAlignment=VerticalAlignment.Center;titleRow.Children.Add(logo);caption.VerticalAlignment=VerticalAlignment.Center; caption.Margin=new Thickness(0); titleRow.Children.Add(caption); content.Children.Add(titleRow);
+   reply.Margin=new Thickness(0,8,0,6); reply.LineHeight=26;
    var textScroll=new ScrollViewer {Content=reply,VerticalScrollBarVisibility=ScrollBarVisibility.Auto,MaxHeight=168,MinHeight=36}; content.Children.Add(textScroll);
    var navigation=new DockPanel {Margin=new Thickness(0,8,0,0)};
    var controls=new StackPanel {Orientation=Orientation.Horizontal,HorizontalAlignment=HorizontalAlignment.Right};
-   previous=Mini("‹",delegate { Navigate(-1); }); play=Mini("暂停",TogglePlay); next=Mini("›",delegate { Navigate(1); }); stop=Mini("停止",Stop);
+   previous=Ui.Icon("上一段","left",delegate { Navigate(-1); },24); play=Ui.Icon("暂停播放","pause",TogglePlay,24); next=Ui.Icon("下一段","right",delegate { Navigate(1); },24); stop=Ui.Icon("停止回复","stop",Stop,24);
    controls.Children.Add(previous); controls.Children.Add(play); controls.Children.Add(next); controls.Children.Add(stop); DockPanel.SetDock(controls,Dock.Right); navigation.Children.Add(controls); counter.Margin=new Thickness(0); counter.VerticalAlignment=VerticalAlignment.Center; navigation.Children.Add(counter); content.Children.Add(navigation);
-   layout.Children.Add(new Border {Background=Ui.Color("#f326223a"),BorderBrush=Ui.Color("#b49ace"),BorderThickness=new Thickness(1),CornerRadius=new CornerRadius(17),Padding=new Thickness(15,11,15,10),Child=content});
-   input.MaxLength=32000; input.MinHeight=0; input.Height=55; input.Margin=new Thickness(0,0,0,7); input.ToolTip="输入问题 · Enter 发送 · Shift+Enter 换行";
+   var replyBox=Ui.Surface(content,24,"#ffffff",new Thickness(17,14,17,12));replyBox.Effect=new System.Windows.Media.Effects.DropShadowEffect {BlurRadius=14,ShadowDepth=3,Opacity=.08,Color=Colors.Gray};layout.Children.Add(replyBox);
+   layout.Children.Add(new System.Windows.Shapes.Path {Data=Geometry.Parse("M0,0 L10,9 L20,0 Z"),Fill=Brushes.White,HorizontalAlignment=HorizontalAlignment.Right,Margin=new Thickness(0,-1,78,0),Width=20,Height=9,Stretch=Stretch.Fill});
+   input.MaxLength=32000; input.MinHeight=34;input.MaxHeight=90; input.Height=double.NaN; input.Margin=new Thickness(0); input.Padding=new Thickness(3,7,3,7); input.ToolTip="输入问题 · Enter 发送 · Shift+Enter 换行";
    input.PreviewKeyDown+=delegate(object sender,KeyEventArgs e) { if(e.Key==Key.Enter&&(Keyboard.Modifiers&ModifierKeys.Shift)==0) { e.Handled=true; Send(); } else if(e.Key==Key.Escape) { inputPanel.Visibility=Visibility.Collapsed; FollowAnchor(); e.Handled=true; } };
-   inputPanel.Children.Add(input);
-   attachmentPanel.Children.Add(thumbnail); attachmentPanel.Children.Add(attachmentLabel); attachmentPanel.Children.Add(Mini("移除",delegate { SetAttachment(null); })); inputPanel.Children.Add(attachmentPanel);
-   var inputFooter=new DockPanel(); var hint=Ui.Text("Enter 发送 · Shift+Enter 换行",10,"#b8a9cc"); hint.Margin=new Thickness(0); hint.VerticalAlignment=VerticalAlignment.Center;
-   send=Mini("发送",Send); DockPanel.SetDock(send,Dock.Right); inputFooter.Children.Add(send); capture=Mini("截图",Capture); DockPanel.SetDock(capture,Dock.Right); inputFooter.Children.Add(capture); inputFooter.Children.Add(hint); inputPanel.Children.Add(inputFooter);
-   var inputBox=new Border {CornerRadius=new CornerRadius(13),Background=Ui.Color("#f326223a"),BorderBrush=Ui.Color("#78648f"),BorderThickness=new Thickness(1),Padding=new Thickness(10),Margin=new Thickness(0,5,0,0),Child=inputPanel};
-   // Collapsing the input must also remove its border and margin.
-   inputBox.SetBinding(UIElement.VisibilityProperty,new System.Windows.Data.Binding("Visibility") { Source=inputPanel }); layout.Children.Add(inputBox);
-   layout.Children.Add(new System.Windows.Shapes.Path { Data=Geometry.Parse("M 0 0 L 12 10 L 24 0 Z"),Fill=Ui.Color("#f326223a"),HorizontalAlignment=HorizontalAlignment.Center,Width=24,Height=10,Stretch=Stretch.Fill });
+   attachmentPanel.Children.Add(thumbnail); attachmentLabel.VerticalAlignment=VerticalAlignment.Center;attachmentLabel.Margin=new Thickness(0);attachmentPanel.Children.Add(attachmentLabel); attachmentPanel.Children.Add(Ui.Icon("移除截图","x",delegate { SetAttachment(null); }));
+   var attachmentBox=Ui.Surface(attachmentPanel,18,"#ffffff",new Thickness(10,8,10,5));attachmentBox.Margin=new Thickness(0,0,0,10);attachmentBox.SetBinding(UIElement.VisibilityProperty,new System.Windows.Data.Binding("Visibility") {Source=attachmentPanel});inputPanel.Children.Add(attachmentBox);
+   var inputRow=new DockPanel();send=Ui.Icon("发送","send",Send,34);send.Background=Ui.Color(Ui.Purple);send.Foreground=Brushes.White;DockPanel.SetDock(send,Dock.Right);inputRow.Children.Add(send);capture=Ui.Icon("框选截图","crop",Capture,34);DockPanel.SetDock(capture,Dock.Right);inputRow.Children.Add(capture);
+   var inputArea=new Grid();inputArea.Children.Add(input);var placeholder=Ui.Text("想问些什么？",12,"#aaa2b5");placeholder.Margin=new Thickness(4,0,0,0);placeholder.VerticalAlignment=VerticalAlignment.Center;placeholder.IsHitTestVisible=false;inputArea.Children.Add(placeholder);input.TextChanged+=delegate {placeholder.Visibility=input.Text.Length==0?Visibility.Visible:Visibility.Collapsed;};inputRow.Children.Add(inputArea);
+   var inputBox=Ui.Surface(inputRow,26,"#ffffff",new Thickness(12,8,8,8));inputBox.BorderThickness=new Thickness(1);inputBox.BorderBrush=Brushes.Transparent;input.GotKeyboardFocus+=delegate {inputBox.BorderBrush=Ui.Color("#d2c6e9");};input.LostKeyboardFocus+=delegate {inputBox.BorderBrush=Brushes.Transparent;};inputPanel.Children.Add(inputBox);
+   var hint=Ui.Text("Enter 发送 · Shift+Enter 换行",9,"#a69aad");hint.Margin=new Thickness(12,8,0,0);inputPanel.Children.Add(hint);inputPanel.Margin=new Thickness(0,10,0,0);layout.Children.Add(inputPanel);
    SizeChanged+=delegate { FollowAnchor(); };
    Deactivated+=delegate { if(!dialogActive&&!captureActive) Hide(); };
    Closing+=delegate(object sender,System.ComponentModel.CancelEventArgs e) { if(!shutdown) { e.Cancel=true; Hide(); } else { playback.Stop(); if(pending!=null) pending.Cancel(); } };
@@ -105,7 +104,7 @@ namespace HailuotaPet {
    inputPanel.Visibility=Visibility.Collapsed; Refresh();
   }
   Button Mini(string title,Action action) { var button=Ui.Button(title,action); button.FontSize=10; button.Padding=new Thickness(7,4,7,4); button.MinHeight=24; return button; }
-  void Refresh() { input.IsEnabled=send.IsEnabled=capture.IsEnabled=AiEnabled&&!busy; previous.IsEnabled=current>0; next.IsEnabled=current>=0&&current+1<parts.Count; play.IsEnabled=parts.Count>1; stop.IsEnabled=busy||current+1<parts.Count; play.Content=autoplay?"暂停":"继续"; counter.Text=current<0?(busy?"等待回复":""):((current+1)+" / "+parts.Count+(finished?"":"…")); }
+  void Refresh() { input.IsEnabled=send.IsEnabled=capture.IsEnabled=AiEnabled&&!busy; previous.IsEnabled=current>0; next.IsEnabled=current>=0&&current+1<parts.Count; play.IsEnabled=parts.Count>1; stop.IsEnabled=busy||current+1<parts.Count; Ui.SetIcon(play,autoplay?"pause":"play"); play.ToolTip=autoplay?"暂停播放":"继续播放"; counter.Text=current<0?(busy?"等待回复":""):((current+1)+" / "+parts.Count+(finished?"":"…")); }
   public void BringUp(bool showInput=true) {
    openedAt=clock.Elapsed.TotalSeconds;
    if(!IsVisible) Show(); FollowAnchor();
@@ -135,9 +134,9 @@ namespace HailuotaPet {
    FollowAnchor();
   }
   public void OpenHistory() {
-   var window=new Window {Title="海洛塔帝 · 完整聊天记录",Width=520,Height=610,Owner=this,WindowStartupLocation=WindowStartupLocation.CenterOwner}; Ui.Theme(window);
+   var window=new Window {Title="海洛塔帝 · 完整聊天记录",Width=540,Height=630,Owner=this,WindowStartupLocation=WindowStartupLocation.CenterOwner};
    var text=new StringBuilder(); foreach(var message in History) text.AppendLine(message.Role=="user"?"你：":"海洛塔帝：").AppendLine(message.Content).AppendLine();
-   var view=Ui.Input(text.ToString(),true); view.IsReadOnly=true; view.Margin=new Thickness(16); window.Content=view; dialogActive=true; try { window.ShowDialog(); } finally { dialogActive=false; }
+   var view=Ui.Input(text.Length==0?"还没有对话。试着在气泡下方说点什么。":text.ToString(),true);view.IsReadOnly=true;view.Margin=new Thickness(20,8,20,22);Ui.Shell(window,"聊天记录",view); dialogActive=true; try { window.ShowDialog(); } finally { dialogActive=false; }
   }
   void NewChat() { if(busy) { reply.Text="先停止当前回复，再开始新对话。"; return; } SetAttachment(null); History.Clear(); AiStore.SaveHistory(Settings,History); parts.Clear(); current=-1; reply.Text="我在，想聊些什么？"; inputPanel.Visibility=Visibility.Visible; Refresh(); FollowAnchor(); input.Focus(); }
   void Navigate(int change) { if(parts.Count==0) return; autoplay=false; Display(Math.Max(0,Math.Min(parts.Count-1,current+change))); Refresh(); }

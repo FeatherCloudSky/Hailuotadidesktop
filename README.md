@@ -6,6 +6,10 @@
 
 一只住在 Windows 桌面上的海洛塔帝：可以点击互动、拖动、在头顶气泡中聊天，也可以框选屏幕的一部分向 AI 提问。
 
+0.5.0 使用轻量的扁平胶囊界面：白色气泡、紫色发送按钮、线条图标和浅色分组设置。界面直接使用原生 WPF 渲染，无需 WebView。
+
+<p align="center"><img src="docs/images/bubble.png" width="380" alt="原生胶囊气泡与图标输入栏"><img src="docs/images/settings.png" width="310" alt="原生浅色 AI 设置"></p>
+
 [![Windows](https://img.shields.io/badge/Windows-10%20%2F%2011-0078D6)](https://github.com/FeatherCloudSky/Hailuotadidesktop/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Build](https://github.com/FeatherCloudSky/Hailuotadidesktop/actions/workflows/build.yml/badge.svg)](https://github.com/FeatherCloudSky/Hailuotadidesktop/actions/workflows/build.yml)
@@ -83,7 +87,9 @@ $app.WaitForExit()
 $app.ExitCode
 ```
 
-检查结果位于 `checks/`，使用独立测试目录，不覆盖个人设置。覆盖点击/拖动、透明素材、气泡布局与收起、标点分段、截图裁剪、图片请求格式、模拟 HTTP/SSE、取消请求、密钥加密等。
+检查结果位于 `checks/`，使用独立测试目录，不覆盖个人设置。覆盖点击/拖动、透明素材、气泡布局与收起、标点分段、截图裁剪、图片请求格式、模拟 HTTP/SSE、取消请求、密钥加密等。原生胶囊界面还会执行携带合成截图的发送与回复测试，并检查设置字段往返、接口选择和聊天记录开关。
+
+独立的 [HTML 设计预览](ui-preview/index.html) 可从本地浏览器打开；保持它与 `assets/` 的相对路径即可。预览中的回复和框选画面都是示例，不会连接真实 AI 或读取桌面。
 
 `--backend-smoke-test` 会使用本机 Codex 登录，把**合成测试图**发送给 AI 验证看图，需要联网并可能产生服务用量，不在 CI 中运行。当前版本本地检查通过；发布时本机 Codex 网络路由超时，真实图片问答尚未完成端到端验收。多显示器、不同缩放比例仍建议在实际设备检查。
 

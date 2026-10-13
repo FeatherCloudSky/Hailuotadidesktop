@@ -12,7 +12,7 @@
 
 ## 下载与安装
 
-前往 **[Releases 下载最新版](https://github.com/FeatherCloudSky/Hailuotadidesktop/releases/latest)**，下载 `海洛塔帝桌宠-一键安装.exe`，双击后点击“一键安装”。也提供免安装的便携 ZIP。
+前往 **[Releases 下载最新版](https://github.com/FeatherCloudSky/Hailuotadidesktop/releases/latest)**，下载 `Hailuotadi-Setup-x64.exe`，双击后点击“一键安装”。也提供免安装的便携 ZIP。
 
 - 支持 Windows 10 / 11 x64，使用系统的 .NET Framework 4.8；无需 Python 或 Node.js。
 - 安装到当前用户目录，无需管理员权限，自动创建桌面、开始菜单快捷方式及卸载入口。

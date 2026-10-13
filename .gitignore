@@ -24,3 +24,4 @@ workspace/
 # Generated logo intermediate; the SVG and deployment assets are tracked
 /assets/logo-render.png
 /ui-preview/screenshots/
+/promo/

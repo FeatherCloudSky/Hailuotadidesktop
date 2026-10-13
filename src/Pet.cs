@@ -249,6 +249,7 @@ namespace HailuotaPet {
    testCursor=new Point(400,300);
    var folder=Path.Combine(root,"checks"); Directory.CreateDirectory(folder);
    if(bubble.Visibility==Visibility.Visible||chat!=null&&chat.IsVisible) throw new Exception("启动气泡没有隐藏");
+   AiStore.Write("settings.json",new AiSettings {SetupComplete=true});
    var press=new MouseButtonEventArgs(Mouse.PrimaryDevice,0,MouseButton.Left); press.RoutedEvent=MouseLeftButtonDownEvent;
    actor.RaiseEvent(press);
    if(!held||frame!=2||squash.ScaleY>=1) throw new Exception("按下反馈异常");

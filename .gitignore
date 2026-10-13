@@ -1,0 +1,25 @@
+# Build outputs and local verification
+/build/
+/checks/
+/dist/
+*.exe
+*.zip
+*.lnk
+__pycache__/
+*.pyc
+
+# Never publish user data or credentials
+placement.txt
+runtime.json
+settings.json
+history.json
+auth.json
+*.tmp
+*.log
+.env
+.env.*
+.codex/
+workspace/
+
+# Generated logo intermediate; the SVG and deployment assets are tracked
+/assets/logo-render.png

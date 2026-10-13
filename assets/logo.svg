@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+ <title id="title">海洛塔帝桌宠</title>
+ <desc id="desc">苹果风格圆角正方形，紫色长发形双缎带环绕金色菱形和红色宝石。手工绘制的纯矢量图标。</desc>
+ <defs>
+  <linearGradient id="base" x1="0" y1="0" x2="1" y2="1">
+   <stop stop-color="#353264"/><stop offset=".5" stop-color="#211d44"/><stop offset="1" stop-color="#11152e"/>
+  </linearGradient>
+  <radialGradient id="glow" cx=".3" cy=".18" r=".9">
+   <stop stop-color="#9e8af1" stop-opacity=".3"/><stop offset=".55" stop-color="#6750b4" stop-opacity=".08"/><stop offset="1" stop-color="#2c2550" stop-opacity="0"/>
+  </radialGradient>
+  <linearGradient id="hair" x1=".1" y1=".1" x2=".9" y2=".9">
+   <stop stop-color="#efdeff"/><stop offset=".26" stop-color="#b5a0ef"/><stop offset=".62" stop-color="#8e79d6"/><stop offset="1" stop-color="#6555aa"/>
+  </linearGradient>
+  <linearGradient id="hair2" x1=".9" y1=".1" x2=".2" y2=".9">
+   <stop stop-color="#a39be8"/><stop offset=".45" stop-color="#d3b9f5"/><stop offset="1" stop-color="#8070c3"/>
+  </linearGradient>
+  <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+   <stop stop-color="#f7e2b5"/><stop offset=".48" stop-color="#c9a46a"/><stop offset="1" stop-color="#f1d8a3"/>
+  </linearGradient>
+  <linearGradient id="glass" x1="0" y1="0" x2="0" y2="1">
+   <stop stop-color="#ffffff" stop-opacity=".17"/><stop offset=".65" stop-color="#ffffff" stop-opacity="0"/>
+  </linearGradient>
+  <path id="squircle" d="M181 16H331C394 16 424 19 458 54C493 88 496 118 496 181V331C496 394 493 424 458 458C424 493 394 496 331 496H181C118 496 88 493 54 458C19 424 16 394 16 331V181C16 118 19 88 54 54C88 19 118 16 181 16Z"/>
+  <clipPath id="clip"><use href="#squircle"/></clipPath>
+ </defs>
+ <use href="#squircle" fill="url(#base)"/>
+ <g clip-path="url(#clip)">
+  <path fill="url(#glow)" d="M0 0H512V512H0Z"/>
+  <path d="M70 185C111 91 215 55 312 72" fill="none" stroke="#b49ae1" stroke-opacity=".13" stroke-width="1.5"/>
+  <path d="M442 317C410 406 307 451 206 436" fill="none" stroke="#e6c68e" stroke-opacity=".17" stroke-width="1.5"/>
+  <path d="M256 178L334 256L256 334L178 256Z" fill="#242044" stroke="url(#gold)" stroke-width="3.5" stroke-linejoin="round"/>
+  <path d="M312 74C371 102 385 153 349 194C318 229 253 226 208 258C173 283 172 331 203 364C135 348 106 305 123 253C137 210 189 192 246 177C307 161 341 127 312 74Z" fill="url(#hair)"/>
+  <path d="M324 95C351 143 322 175 265 191C208 207 168 222 151 259C138 290 150 321 176 340C141 297 164 262 208 237C248 215 305 211 332 183C358 155 348 123 324 95Z" fill="#f4e8ff" fill-opacity=".2"/>
+  <path d="M312 74C341 127 307 161 246 177C189 192 137 210 123 253" fill="none" stroke="url(#gold)" stroke-width="2.8" stroke-linecap="round"/>
+  <path d="M355 164C411 215 405 280 363 315C336 338 296 348 263 374C237 394 232 419 244 442C194 415 193 375 222 343C253 310 313 305 341 280C372 252 380 210 355 164Z" fill="url(#hair2)"/>
+  <path d="M366 188C393 244 363 285 318 310C278 332 233 346 220 379C213 397 220 417 234 431C210 384 251 361 292 341C339 318 378 292 386 256C391 231 381 206 366 188Z" fill="#eee2ff" fill-opacity=".23"/>
+  <path d="M355 164C411 215 405 280 363 315C336 338 296 348 263 374C237 394 232 419 244 442" fill="none" stroke="url(#gold)" stroke-width="2.8" stroke-linecap="round"/>
+  <path d="M256 220L281 256L256 292L231 256Z" fill="#af3e68" stroke="url(#gold)" stroke-width="3.2" stroke-linejoin="round"/>
+  <path d="M256 220V256H231Z" fill="#e998b1"/>
+  <path d="M256 220L281 256H256Z" fill="#be4a76"/>
+  <path d="M231 256H256V292Z" fill="#8a285b"/>
+  <path d="M256 256H281L256 292Z" fill="#5a214e"/>
+  <path d="M256 230L269 255L256 279L243 255Z" fill="none" stroke="#ffc5d3" stroke-opacity=".44" stroke-width="1.1"/>
+  <path d="M395 94C396 106 400 110 412 111C400 112 396 116 395 128C394 116 390 112 378 111C390 110 394 106 395 94Z" fill="url(#gold)"/>
+  <circle cx="113" cy="395" r="3.2" fill="#e5c88e"/>
+  <use href="#squircle" fill="url(#glass)"/>
+ </g>
+ <use href="#squircle" fill="none" stroke="#cec0f1" stroke-opacity=".21" stroke-width="1.8"/>
+</svg>
